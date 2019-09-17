@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+        <div class="a"></div>
+        <div class="a"></div>
+    <select name="" id="select">
+        <option value="1">1</option>
+        <option value="1">1</option>
+    </select>
+    <script type="module">
+        // wui(8)
+        import { select } from './lib/bundle.js'
+        console.log(select)
+        select({
+            elem: '#select'
+        })
+    </script>
+</body>
+
+</html>
