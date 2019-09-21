@@ -1,0 +1,29 @@
+.wui-select-input {
+    padding: 0 20px;
+    height: 40px;
+    line-height: 40px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    overflow: hidden;
+    padding-left: 15px;
+    padding-right: 30px;
+    cursor: pointer;
+    position: relative;
+}
+
+.wui-select-input::before {
+    position: absolute;
+    content: "1";
+    width: 14px;
+    height: 14px;
+    background-color: #eee;
+    top: 0;
+    left: 0;
+}
+
+.wui-select-input:focus {
+    outline: none;
+    border-color: #409eff;
+}

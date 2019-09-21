@@ -1,3 +1,6 @@
+import '../../global/global.css';
+import './select.css'
+
 import { Dom, $ } from "../../dom/dom";
 
 export class Select {
@@ -14,9 +17,10 @@ export class Select {
         //  占位符
         placeholder?: string
     }) {
+        this.options = [];
         const {
             elem,
-            placeholder
+            placeholder = '请选择'
         } = option
         this.placeholder = placeholder;
         this.elem = $(elem);
@@ -28,7 +32,7 @@ export class Select {
      * render
      */
     public render() {
-        let html = `<ul class='wui-select-body'>`;
+        let ulHtml = `<ul class='wui-select-body'>`;
         const children = this.elem.children();
         for (let i = 0; i < children.length; i++) {
             const option = $(children[i]);
@@ -38,12 +42,18 @@ export class Select {
                 value: <string>value,
                 label: <string>label
             })
-            html += `
+            ulHtml += `
                 <li class='wui-select-item'>${label}</li>
             `
         }
-        html += '</ul>';
-        this.dom = $(html);
-        this.dom.append(this.elem);
+        ulHtml += '</ul>';
+        this.dom = $(ulHtml);
+        // this.dom.after(this.elem);
+        const titleHtml = `<div class='wui-select-title'>
+                <input type='text' readonly='readonly' autocompolete='off' placeholder='${this.placeholder}' class='wui-select-input' >
+            </div>
+        `
+        const title = $(titleHtml);
+        title.after(this.elem);
     }
 }

@@ -8,6 +8,7 @@ export class Dom {
         | Element
         | Dom
         | HTMLCollection) {
+        this.nodes = [];
         if (element instanceof Dom) {
             return element;
         }
@@ -17,7 +18,14 @@ export class Dom {
             if (reg.test(element)) {
                 nodes = createElement(element);
             } else {
-                nodes = document.getElementsByClassName(element);
+                const nodeList = document.querySelectorAll(element);
+                for (let i = 0; i < nodeList.length; i++) {
+                    const node = nodeList[i];
+                    if (node instanceof HTMLElement || node instanceof Element) {
+                        this.nodes.push(node);
+                    }
+                }
+                return;
             }
         }
         if (element instanceof HTMLCollection) {
@@ -73,6 +81,16 @@ export class Dom {
         return this;
     }
 
+    public length(): number {
+        return this.nodes.length
+    }
+    
+    public parent():Dom {
+        return this.length() > 0 ?
+        new Dom(this.get(0).parentElement) :
+        null
+    }
+
     public children(): HTMLCollection {
         if (this.nodes.length) {
             const node = this.get(0);
@@ -107,9 +125,48 @@ export class Dom {
 
     public append(parent: Dom): Dom {
         const p = parent.get(0);
+        if (!p) {
+            return this;
+        }
         return this.each(node => {
             p.appendChild(node);
         })
+    }
+
+    public after(prev: Dom): Dom {
+        const nextNode = prev.next();
+        const node = this.get(0);
+        if (nextNode) {
+            const parent = prev.parent();
+            const parentNode = parent.get(0);
+            parentNode.insertBefore(node, nextNode.get(0));
+        } else {
+            const parent = prev.parent();
+            this.append(parent);
+        }
+        return this
+    }
+
+    public before(next: Dom):Dom {
+        const parent = next.parent().get(0);
+        parent.insertBefore(this.get(0), parent);
+        return this;
+    }
+
+    public next(): Dom {
+        const node = this.get(0);
+        if (node) {
+            const next = node.nextElementSibling;
+            return next ? new Dom(next) : null;
+        }
+    }
+
+    public prev(): Dom {
+        const node = this.get(0);
+        if (node) {
+            const prev = node.previousElementSibling;
+            return prev ? new Dom(prev) : null;
+        }
     }
 
     public remove(): Dom {
