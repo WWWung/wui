@@ -7,13 +7,15 @@ export class Dom {
         | HTMLElement
         | Element
         | Dom
-        | HTMLCollection) {
+        | HTMLCollection
+        | NodeList) {
         this.nodes = [];
         if (element instanceof Dom) {
             return element;
         }
         var nodes: HTMLCollection;
         if (typeof element === 'string') {
+            element = element.trim();
             const reg: RegExp = /^</;
             if (reg.test(element)) {
                 nodes = createElement(element);
@@ -27,6 +29,15 @@ export class Dom {
                 }
                 return;
             }
+        }
+        if (element instanceof NodeList) {
+            for (let i = 0; i < element.length; i++) {
+                const node = element[i];
+                if (node instanceof HTMLElement || node instanceof Element) {
+                    this.nodes.push(node);
+                }
+            }
+            return;
         }
         if (element instanceof HTMLCollection) {
             nodes = element
@@ -112,6 +123,18 @@ export class Dom {
         return '';
     }
 
+    public val(value?: string): string | Dom {
+        if (arguments.length === 1) {
+            return this.each(node => {
+                if (node instanceof HTMLInputElement) {
+                    node.value = value;
+                }
+            })
+        }
+        const node = this.filter(node => node instanceof HTMLInputElement)[0];
+        return (<HTMLInputElement>node).value;
+    }
+
     public text(text?: string): string | Dom {
         if (arguments.length === 1) {
             return this.each(node => {
@@ -176,6 +199,28 @@ export class Dom {
         })
     }
 
+    public addClass(cls:string):Dom {
+        return this.each(node => {
+            node.classList.add(cls);
+        })
+    }
+
+    public removeClass(cls:string):Dom{
+        return this.each(node => {
+            node.classList.remove(cls);
+        })
+    }
+
+    public hasClass(cls:string):boolean{
+        for (let i = 0; i < this.nodes.length; i++) {
+            const node = this.nodes[i];
+            if (!node.classList.contains(cls)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public css(name:string, value?:string):Dom|string {
         if (arguments.length === 2) {
             return this.each(node => {
@@ -190,6 +235,44 @@ export class Dom {
             return (<HTMLElement>first).style[name];
         }
         return '';
+    }
+
+    public index(dom: Dom):number {
+        const node = dom.get(0);
+        return this.nodes.indexOf(node);
+    }
+
+    public find(selector:string): Dom{
+        const node = this.get(0);
+        const nodelist = node.querySelectorAll(selector);
+        return new Dom(nodelist);
+    }
+
+    public getRect(): {
+        top: number,
+        left: number,
+        bottom: number,
+        right: number,
+        width: number,
+        height: number
+    } {
+        const node = this.get(0);
+        const {
+            top,
+            left,
+            bottom,
+            right,
+            width,
+            height
+        } = node.getBoundingClientRect();
+        return {
+            top,
+            left,
+            bottom,
+            right,
+            width,
+            height
+        }
     }
 
     private filter(callback: (node:HTMLElement|Element) => boolean) : HTMLCollection {

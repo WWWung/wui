@@ -14,3 +14,37 @@ input, textarea {
     border: none;
     outline: none;
 }
+
+.wui-scroll-y {
+    height: 100%;
+    overflow-y: auto; 
+}
+
+@keyframes zoom-in-y {
+    0% {
+        transform: scaleY(0);
+    }
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+.zoom-in-y {
+    animation: zoom-in-y .2s;
+    transform-origin: 50% 0;
+}
+
+@keyframes zoom-out-y {
+    0% {
+        transform: scaleY(1);
+    }
+    100% {
+        transform: scaleY(0);
+    }
+}
+
+.zoom-out-y {
+    animation: zoom-out-y .2s;
+    transform-origin: 50% 0;
+    animation-fill-mode: forwards;
+}
