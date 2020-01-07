@@ -61,14 +61,26 @@ export class Dom {
     /**
      * on
      */
-    public on(type: string, callback: EventListener): Dom {
-        // const { nodes } = this;
-        // for (let i = 0; i < nodes.length; i++) {
-        //     const node = nodes[i];
-        //     node.addEventListener(type, callback)
-        // }
+    public on(type: string, callback: EventListener, context?: any): Dom {
         this.each(node => {
-            node.addEventListener(type, callback);
+            const eventHandler = function (e: Event) {
+                if (!e) {
+                    e = window.event
+                }
+                callback.call(context || node, e)
+            }
+            if (!node[`W_${type}`]) {
+                node[`W_${type}`] = []
+            }
+            const hit = this.hasHandler(node, type, callback)
+            if (hit >= 0) {
+                this.removeHandler(node, type, callback)
+            }
+            node[`W_${type}`].push({
+                callback: eventHandler,
+                src: callback
+            })
+            node.addEventListener(type, eventHandler, false)
         })
         return this
     }
@@ -78,6 +90,45 @@ export class Dom {
             node.removeEventListener(type, callback);
         })
         return this;
+    }
+
+    private removeHandler(node: HTMLElement | Element, type: string, callback?: EventListener) {
+        const handlers = node['W__' + type]
+        if (!handlers) {
+            return this
+        }
+        const doRemove = function (type: string, callback: EventListener) {
+            node.removeEventListener(type, callback, false);
+        }
+        if (!callback) {
+            for (let i = 0, len = handlers.length; i < len; i++) {
+                const {
+                    callback
+                } = handlers[i]
+                doRemove(type, callback)
+            }
+            delete node['W__' + type]
+            return this
+        }
+        const hit = this.hasHandler(node, type, callback)
+        if (hit < 0) {
+            return this
+        }
+        const hiter = handlers[hit]
+        doRemove(type, hiter.callback)
+    }
+
+    private hasHandler(node: HTMLElement | Element, type: string, callback: EventListener): number {
+        const handlers = node['W__' + type]
+        if (!node || !handlers || !callback) {
+            return -1;
+        }
+        for (let i = 0; i < handlers.length; i++) {
+            if (handlers.src === callback) {
+                return i
+            }
+        }
+        return -1
     }
 
     /**
@@ -123,11 +174,11 @@ export class Dom {
         return '';
     }
 
-    public val(value?: string): string | Dom {
+    public val(value?: string | number): string | Dom {
         if (arguments.length === 1) {
             return this.each(node => {
                 if (node instanceof HTMLInputElement) {
-                    node.value = value;
+                    node.value = String(value);
                 }
             })
         }

@@ -36,6 +36,38 @@ function createElement(html) {
     wrap.innerHTML = html;
     return wrap.children;
 }
+function preventDefault(event) {
+    if (event.preventDefault) {
+        event.preventDefault();
+    }
+    else {
+        event.returnValue = false;
+    }
+}
+/**
+ * 根据事件参数获取冒泡的所有元素
+ * @param {Event} e
+ */
+function eventPath(e) {
+    /**
+     * ie11 , edge
+     */
+    var target = e.target;
+    return [target].concat(getParents(target), []);
+}
+/**
+ * 找到某个元素的所有祖先元素
+ * @param {HTMLElement} target
+ * @param {null|Array} cache
+ */
+function getParents(target, cache) {
+    var parents = cache || [];
+    var parentNode = target.parentNode;
+    if (parentNode) {
+        return getParents(parentNode, parents.concat([parentNode]));
+    }
+    return parents;
+}
 //# sourceMappingURL=domUtils.js.map
 
 var Dom = /** @class */ (function () {
@@ -91,14 +123,27 @@ var Dom = /** @class */ (function () {
     /**
      * on
      */
-    Dom.prototype.on = function (type, callback) {
-        // const { nodes } = this;
-        // for (let i = 0; i < nodes.length; i++) {
-        //     const node = nodes[i];
-        //     node.addEventListener(type, callback)
-        // }
+    Dom.prototype.on = function (type, callback, context) {
+        var _this = this;
         this.each(function (node) {
-            node.addEventListener(type, callback);
+            var eventHandler = function (e) {
+                if (!e) {
+                    e = window.event;
+                }
+                callback.call(context || node, e);
+            };
+            if (!node["W_" + type]) {
+                node["W_" + type] = [];
+            }
+            var hit = _this.hasHandler(node, type, callback);
+            if (hit >= 0) {
+                _this.removeHandler(node, type, callback);
+            }
+            node["W_" + type].push({
+                callback: eventHandler,
+                src: callback
+            });
+            node.addEventListener(type, eventHandler, false);
         });
         return this;
     };
@@ -107,6 +152,41 @@ var Dom = /** @class */ (function () {
             node.removeEventListener(type, callback);
         });
         return this;
+    };
+    Dom.prototype.removeHandler = function (node, type, callback) {
+        var handlers = node['W__' + type];
+        if (!handlers) {
+            return this;
+        }
+        var doRemove = function (type, callback) {
+            node.removeEventListener(type, callback, false);
+        };
+        if (!callback) {
+            for (var i = 0, len = handlers.length; i < len; i++) {
+                var callback_1 = handlers[i].callback;
+                doRemove(type, callback_1);
+            }
+            delete node['W__' + type];
+            return this;
+        }
+        var hit = this.hasHandler(node, type, callback);
+        if (hit < 0) {
+            return this;
+        }
+        var hiter = handlers[hit];
+        doRemove(type, hiter.callback);
+    };
+    Dom.prototype.hasHandler = function (node, type, callback) {
+        var handlers = node['W__' + type];
+        if (!node || !handlers || !callback) {
+            return -1;
+        }
+        for (var i = 0; i < handlers.length; i++) {
+            if (handlers.src === callback) {
+                return i;
+            }
+        }
+        return -1;
     };
     /**
      * each
@@ -150,7 +230,7 @@ var Dom = /** @class */ (function () {
         if (arguments.length === 1) {
             return this.each(function (node) {
                 if (node instanceof HTMLInputElement) {
-                    node.value = value;
+                    node.value = String(value);
                 }
             });
         }
@@ -283,6 +363,35 @@ function $(element) {
 function noop(data) {
     return data;
 }
+function merge(o1, o2) {
+    return Object.assign(o1, o2);
+}
+var canvas, ctx;
+function getRgba(color) {
+    if (!canvas || !ctx) {
+        canvas = createElement('<canvas width=1 height=1></canvas>');
+        ctx = canvas[0].getContext('2d');
+    }
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    var colorData = ctx.getImageData(0, 0, 1, 1).data;
+    var a = colorData[3] / 255;
+    a = parseFloat(a.toFixed(2));
+    return {
+        r: colorData[0],
+        g: colorData[1],
+        b: colorData[2],
+        a: a
+    };
+}
+function toInt(value) {
+    var int = parseInt(value);
+    if (isNaN(int)) {
+        return 0;
+    }
+    return int;
+}
 //# sourceMappingURL=utils.js.map
 
 var Select = /** @class */ (function () {
@@ -397,6 +506,415 @@ var Select = /** @class */ (function () {
 }());
 //# sourceMappingURL=Select.js.map
 
+var css$2 = ".ew-cp-trigger {\r\n    box-sizing: border-box;\r\n    border: 1px solid #e6e6e6;\r\n    border-radius: 4px;\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    padding: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.ew-cp-alpha-bg, .ew-cp-color-bg {\r\n    width: 100%;\r\n    height: 100%;\r\n    border-radius: 2px;\r\n}\r\n\r\n.ew-cp-color-bg {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cp-color-icon {\r\n    width: 100%;\r\n    height: 100%;\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cp-panel {\r\n    width: 220px;\r\n    height: auto;\r\n    padding: 10px;\r\n    box-sizing: border-box;\r\n    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);\r\n    border-radius: 4px;\r\n    overflow: hidden;\r\n}\r\n\r\n.ew-hsvp {\r\n    position: relative;\r\n    cursor: crosshair;\r\n}\r\n\r\n.ew-hsvp-m1 {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    background: linear-gradient(180deg, transparent 0, #000);\r\n}\r\n\r\n.ew-hsvp-m2 {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    background: linear-gradient(90deg, #fff 0, transparent);\r\n}\r\n\r\n.ew-hsvc {\r\n    width: 8px;\r\n    height: 8px;\r\n    border-radius: 50%;\r\n    box-shadow: 0px 0px 2px rgb(0, 0, 0);\r\n    overflow: hidden;\r\n    border: 2px solid #fff;\r\n    position: absolute;\r\n    top: 0px;\r\n    left: 0px;\r\n}\r\n\r\n.ew-hp {\r\n    width: 100%;\r\n    height: 15px;\r\n    margin-top: 10px;\r\n    position: relative;\r\n    cursor: pointer;\r\n    background: linear-gradient(90deg, red 0, #f90 10%, #cdff00 20%, #35ff00 30%, #0f6 40%, #00fffd 50%, #06f 60%, #3200ff 70%, #cd00ff 80%, #f09 90%, red);\r\n}\r\n\r\n.ew-alpha {\r\n    width: 100%;\r\n    height: 15px;\r\n    margin-top: 10px;\r\n    position: relative;\r\n    cursor: pointer;\r\n    background: linear-gradient(to right, rgba(38, 18, 3, 0) 0%, rgb(38, 18, 3) 100%);\r\n    display: none;\r\n}\r\n\r\n.ew-cp-rgba .ew-alpha {\r\n    display: flex;\r\n}\r\n\r\n.ew-alpha-bg, .ew-cip-pre-bg {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.ew-cp-rgba .ew-alpha, .ew-cp-rgba .ew-cip-pre{\r\n    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==);\r\n    background-repeat: repeat;\r\n}\r\n\r\n.ew-hpc, .ew-alphac {\r\n    position: absolute;\r\n    height: 19px;\r\n    top: -2px;\r\n    left: -2px;\r\n    width: 4px;\r\n    border: 1px solid #000;\r\n    border-radius: 1px;\r\n    background-color: #fff;\r\n}\r\n\r\n.ew-cip-row {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n    font-size: 12px;\r\n    height: 18px;\r\n    line-height: 18px;\r\n    margin-top: 10px;\r\n}\r\n\r\n.ew-cip-i {\r\n    height: 18px;\r\n    width: 30px;\r\n    border: 1px solid #e0e1e5;\r\n    line-height: 18px;\r\n    font-size: 12px;\r\n}\r\n\r\n.ew-cip-row-sub {\r\n    height: 30px;\r\n    line-height: 30px;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cip-hex-input {\r\n    height: 18px;\r\n    width: 45px;\r\n    border: 1px solid #e0e1e5;\r\n    line-height: 18px;\r\n    font-size: 12px;\r\n}\r\n\r\n.ew-cip-pre {\r\n    display: inline-block;\r\n    width: 40px;\r\n    background: #f00;\r\n    height: 20px;\r\n    border-radius: 2px;\r\n    overflow: hidden;\r\n}\r\n\r\n.ew-cp-row-save {\r\n    height: 24px;\r\n    line-height: 24px;\r\n    width: auto;\r\n    padding: 0 10px;\r\n    border: 1px solid #dcdfe6;\r\n    cursor: pointer;\r\n    border-radius: 2px;\r\n    outline: none;\r\n}\r\n\r\n.ew-cp-row-save:hover {\r\n    border-color: #409eff;\r\n    color: #409eff;\r\n}";
+styleInject(css$2);
+
+//  颜色之间的相互转换
+function rgbToHex(r, g, b) {
+    r = r.toString(16);
+    if (r.length == 1) {
+        r = '0' + r;
+    }
+    g = g.toString(16);
+    if (g.length == 1) {
+        g = '0' + g;
+    }
+    b = b.toString(16);
+    if (b.length == 1) {
+        b = '0' + b;
+    }
+    return (r + g + b).toUpperCase();
+}
+
+function rgbToHsv(r, g, b) {
+    r = toInt(r);
+    g = toInt(g);
+    b = toInt(b);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0,
+        s = 0,
+        v = 0;
+
+    const sub = max - min;
+    if (max === min) {
+        h = 0;
+    } else {
+        if (r === max) {
+            if (g >= b) {
+                h = 60 * (g - b) / sub;
+            } else {
+                h = 60 * (g - b) / sub + 360;
+            }
+        } else if (g === max) {
+            h = 60 * (b - r) / sub + 120;
+        } else {
+            h = 60 * (r - g) / sub + 240;
+        }
+    }
+    if (h > 360) {
+        h -= 360;
+    } else if (h < 0) {
+        h += 360;
+    }
+    s = sub / max;
+    v = max / 255;
+    h /= 360;
+    s = isNaN(s) ? 0 : s;
+    return {
+        h,
+        s,
+        v
+    }
+}
+
+/**
+ * 传入0-1
+ */
+function hsvToRgb(h, s, v) {
+    h *= 360;
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    const i = Math.floor(h / 60);
+    const f = (h / 60) - i;
+    const p = v * (1 - s);
+    const q = v * (1 - (f * s));
+    const t = v * (1 - (1 - f) * s);
+    r = v;
+    g = t;
+    b = p;
+    if (i === 0) {
+        r = v;
+        g = t;
+        b = p;
+    }
+    if (i === 1) {
+        r = q;
+        g = v;
+        b = p;
+    }
+    if (i === 2) {
+        r = p;
+        g = v;
+        b = t;
+    }
+    if (i === 3) {
+        r = p;
+        g = q;
+        b = v;
+    }
+    if (i === 4) {
+        r = t;
+        g = p;
+        b = v;
+    }
+    if (i === 5) {
+        r = v;
+        g = p;
+        b = q;
+    }
+    r = Math.round(r * 255);
+    g = Math.round(g * 255);
+    b = Math.round(b * 255);
+    return {
+        r,
+        g,
+        b
+    }
+}
+
+var defaultOpts = {
+    onChange: noop,
+    alpha: true,
+    value: '#f00'
+};
+var ColorPicker = /** @class */ (function () {
+    function ColorPicker(opts) {
+        this.option = merge(defaultOpts, opts);
+        this.panelWidth = 200;
+        this.panelHeight = 150;
+        this.$el = $(opts.el);
+        var _a = this.option, value = _a.value, alpha = _a.alpha;
+        var _b = getRgba(value), r = _b.r, g = _b.g, b = _b.b, a = _b.a;
+        this.option.value = "rgba(" + r + "," + g + "," + b + "," + (alpha ? a : 1) + ")";
+        this.createIcon();
+    }
+    ColorPicker.prototype.setValue = function (color) {
+        var _a = getRgba(color), r = _a.r, g = _a.g, b = _a.b, a = _a.a;
+        var alpha = this.option.alpha;
+        if (!alpha) {
+            a = 1;
+        }
+        // this.rgba = { r, g, b, a }
+        this.setRgba({ r: r, g: g, b: b, a: a });
+        var _b = rgbToHsv(r, g, b), h = _b.h, s = _b.s, v = _b.v;
+        this.setHsv({ h: h, s: s, v: v });
+        var hex = rgbToHex(r, g, b);
+        this.setHex(hex);
+        this.setHcPos(h);
+        this.setHsvcPos(s, v);
+        this.setAlphacPos(a);
+    };
+    ColorPicker.prototype.getValue = function () {
+        var _a = this.rgba, r = _a.r, g = _a.g, b = _a.b, a = _a.a;
+        return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    };
+    ColorPicker.prototype.getHex = function () {
+        return "#" + this.hex;
+    };
+    ColorPicker.prototype.destroy = function () {
+    };
+    ColorPicker.prototype.setHsv = function (_a) {
+        var h = _a.h, s = _a.s, v = _a.v;
+        this.hsv = { h: h, s: s, v: v };
+    };
+    ColorPicker.prototype.setHex = function (hex) {
+        this.$hexInput.val(hex);
+        this.hex = hex;
+    };
+    ColorPicker.prototype.setRgba = function (_a) {
+        var _b = _a.r, r = _b === void 0 ? this.rgba.r : _b, _c = _a.g, g = _c === void 0 ? this.rgba.g : _c, _d = _a.b, b = _d === void 0 ? this.rgba.b : _d, _e = _a.a, a = _e === void 0 ? this.rgba.a : _e;
+        this.rgba = { r: r, g: g, b: b, a: a };
+        this.$rInput.val(r);
+        this.$gInput.val(g);
+        this.$bInput.val(b);
+        this.$aInput.val(a);
+        this.$alphaPanel.css('background', "linear-gradient(to right, rgba(" + r + "," + g + "," + b + ", 0) 0%, rgb(" + r + "," + g + "," + b + ") 100%)");
+        this.$preview.css('backgroundColor', "rgba(" + r + "," + g + "," + b + "," + a + ")");
+    };
+    ColorPicker.prototype.setHcPos = function (h) {
+        var panelWidth = this.panelWidth;
+        var half = 2;
+        var x = h * panelWidth - half;
+        this.$hCursor.css('left', x + "px");
+        var _a = hsvToRgb(h, 1, 1), r = _a.r, g = _a.g, b = _a.b;
+        this.$hsvPanel.css('background', "rgb(" + r + "," + g + "," + b + ")");
+    };
+    ColorPicker.prototype.setAlphacPos = function (a) {
+        var panelWidth = this.panelWidth;
+        var half = 2;
+        var x = a * panelWidth - half;
+        this.$alphaCursor.css('left', x + "px");
+        this.setRgba({ a: a });
+    };
+    ColorPicker.prototype.setHsvcPos = function (s, v) {
+        var _a = this, panelWidth = _a.panelWidth, panelHeight = _a.panelHeight;
+        var half = 6;
+        var x = s * panelWidth - half;
+        var y = (1 - v) * panelHeight - half;
+        this.$hsvCursor.css('left', x + "px");
+        this.$hsvCursor.css('top', y + "px");
+    };
+    ColorPicker.prototype.createIcon = function () {
+        this.$el.css('display', 'none');
+        var icon = this.$icon = $("\n        <div class=\"ew-cp-trigger\" style=\"width: 28px; height: 28px\">\n            <span class=\"ew-cp-alpha-bg\">\n                <span class=\"ew-cp-color-bg\" style=\"background-color:" + this.option.value + "\">\n                    <i class='ew-cp-color-icon'>\n                        <svg t=\"1569127389612\" class=\"icon\" viewBox=\"0 0 1024 1024\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" p-id=\"1109\" width=\"20\" height=\"20\"><path d=\"M512.726547 675.318646c-8.063653 0-15.790638-3.245927-21.435195-9.006118L231.175103 400.906809c-11.603269-11.837606-11.410887-30.840402 0.427742-42.442648 11.837606-11.601222 30.841426-11.410887 42.442648 0.427742l238.681054 243.534596L751.407602 358.891903c11.601222-11.839653 30.602995-12.033058 42.442648-0.427742 11.839653 11.603269 12.031011 30.605042 0.427742 42.442648L534.161742 666.312528C528.517185 672.072719 520.791224 675.318646 512.726547 675.318646z\" p-id=\"1110\" fill=\"#fff\"></path></svg>\n                    </i>\n                </span>\n            </span>\n        </div>");
+        icon.on('click', this.show, this);
+        icon.after(this.$el);
+    };
+    ColorPicker.prototype.show = function () {
+        var _this = this;
+        if (!this.$panel) {
+            this.createPanel();
+        }
+        this.adjustPotion();
+        this.$panel.append($(document.body));
+        var handler = function (e) {
+            var path = eventPath(e);
+            for (var i = 0; i < path.length; i++) {
+                var el = path[i];
+                if (el.classList &&
+                    el.classList.contains('ew-cp-panel')) {
+                    return;
+                }
+            }
+            window.removeEventListener('mousedown', handler);
+            _this.$panel.remove();
+        };
+        window.addEventListener('mousedown', handler);
+    };
+    ColorPicker.prototype.adjustPotion = function () {
+        var _a = this.$panel.getRect(), width = _a.width, height = _a.height;
+        var rect = this.$icon.getRect();
+        var _b = window.screen, availHeight = _b.availHeight, availWidth = _b.availWidth;
+        var x = rect.left + rect.width / 2 - width / 2;
+        if (x + width > availWidth) {
+            x = availWidth - width;
+        }
+        if (x < 0) {
+            x = 0;
+        }
+        var y = rect.top + 20;
+        if (y + height > availHeight) {
+            y = availHeight - height;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        this.$panel.css('left', x + "px");
+        this.$panel.css('top', y + "px");
+    };
+    ColorPicker.prototype.createPanel = function () {
+        var wrap = this.$panel = $("<div class=\"ew-cp-panel\"></div>");
+        if (this.option.alpha) {
+            wrap.addClass('ew-cp-rgba');
+        }
+        var hsvPanel = this.createHsvPanel();
+        var hPanel = this.createHPanel();
+        var alphaPanel = this.createAlphaPanel();
+        var inputPanel = this.createInputPanel();
+        hsvPanel.append(wrap);
+        hPanel.append(wrap);
+        alphaPanel.append(wrap);
+        inputPanel.append(wrap);
+        this.setValue(this.option.value);
+    };
+    ColorPicker.prototype.createHPanel = function () {
+        var hPanel = this.$hPanel = $("<div class=\"ew-hp\"></div>");
+        var hCursor = this.$hCursor = $("<span class=\"ew-hpc\"></span>");
+        hCursor.append(hPanel);
+        function dragHc(e) {
+            preventDefault(e);
+            var _a = hPanel.getRect(), left = _a.left, width = _a.width;
+            var half = 2;
+            var x = e.pageX - left - half;
+            if (x < -half) {
+                x = -half;
+            }
+            if (x > width - half) {
+                x = width - half;
+            }
+            var hsv = this.hsv;
+            var h = hsv.h = (x + half) / width;
+            var rgb = hsvToRgb(h, 1, 1);
+            var color = "rgb(" + rgb.r + "," + rgb.g + "," + rgb.b + ")";
+            this.$hsvPanel.css('backgroundColor', color);
+            hCursor.css('left', x + "px");
+            var _b = hsvToRgb(h, hsv.s, hsv.v), r = _b.r, g = _b.g, b = _b.b;
+            this.setRgba({ r: r, g: g, b: b });
+            var hex = rgbToHex(r, g, b);
+            this.setHex(hex);
+        }
+        var handler = dragHc.bind(this);
+        function off() {
+            window.removeEventListener('mousemove', handler);
+            window.removeEventListener('mouseup', off);
+            window.removeEventListener('mouseleave', off);
+        }
+        hPanel.on('mousedown', function (e) {
+            handler(e);
+            window.addEventListener('mousemove', handler);
+            window.addEventListener('mouseup', off);
+            window.addEventListener('mouseleave', off);
+        }, this);
+        return hPanel;
+    };
+    ColorPicker.prototype.createAlphaPanel = function () {
+        var alphaPanel = $("<div class=\"ew-alpha\"><div class=\"ew-alpha-bg\"></div></div>");
+        var alphaCursor = this.$alphaCursor = $("<span class=\"ew-alphac\"></span>");
+        this.$alphaPanel = alphaPanel.find('.ew-alpha-bg');
+        alphaCursor.append(alphaPanel);
+        function dragHc(e) {
+            preventDefault(e);
+            var _a = alphaPanel.getRect(), left = _a.left, width = _a.width;
+            var half = 2;
+            var x = e.pageX - left - half;
+            if (x < -half) {
+                x = -half;
+            }
+            if (x > width - half) {
+                x = width - half;
+            }
+            alphaCursor.css('left', x + "px");
+            var rgba = this.rgba;
+            var a = rgba.a = (x + half) / width;
+            a = parseFloat(a.toFixed(2));
+            this.$aInput.val(a);
+            this.rgba = merge(this.rgba, { a: a });
+            var _b = this.rgba, r = _b.r, g = _b.g, b = _b.b;
+            this.$preview.css('backgroundColor', "rgba(" + r + "," + g + "," + b + "," + a + ")");
+        }
+        var handler = dragHc.bind(this);
+        function off() {
+            window.removeEventListener('mousemove', handler);
+            window.removeEventListener('mouseup', off);
+            window.removeEventListener('mouseleave', off);
+        }
+        alphaPanel.on('mousedown', function (e) {
+            handler(e);
+            window.addEventListener('mousemove', handler);
+            window.addEventListener('mouseup', off);
+            window.addEventListener('mouseleave', off);
+        }, this);
+        return alphaPanel;
+    };
+    ColorPicker.prototype.createHsvPanel = function () {
+        var hsvPanel = this.$hsvPanel = $("\n        <div style=\"width: " + this.panelWidth + "px; height:" + this.panelHeight + "px\" class=\"ew-hsvp\"><div class=\"ew-hsvp-m2\"></div><div class=\"ew-hsvp-m1\"></div></div>");
+        var hsvCusor = this.$hsvCursor = $("<span class=\"ew-hsvc\"></span>");
+        hsvCusor.append(hsvPanel);
+        function dragHsvc(e) {
+            var _this = this;
+            preventDefault(e);
+            var _a = hsvPanel.getRect(), top = _a.top, left = _a.left, width = _a.width, height = _a.height;
+            var half = 6;
+            var x = e.pageX - left - half;
+            var y = e.pageY - top - half;
+            if (x < -half) {
+                x = -half;
+            }
+            if (x > width - half) {
+                x = width - half;
+            }
+            if (y < -half) {
+                y = -half;
+            }
+            if (y > height - half) {
+                y = height - half;
+            }
+            var timer = setTimeout(function () {
+                clearTimeout(timer);
+                hsvCusor.css('top', y + "px");
+                hsvCusor.css('left', x + "px");
+                var s = _this.hsv.s = (x + half) / width;
+                var v = _this.hsv.v = 1 - (y + half) / height;
+                var _a = hsvToRgb(_this.hsv.h, s, v), r = _a.r, g = _a.g, b = _a.b;
+                _this.setRgba({ r: r, g: g, b: b });
+                var hex = rgbToHex(r, g, b);
+                _this.setHex(hex);
+            }, 10);
+        }
+        var handler = dragHsvc.bind(this);
+        function off() {
+            window.removeEventListener('mousemove', handler);
+            window.removeEventListener('mouseup', off);
+            window.removeEventListener('mouseleave', off);
+        }
+        hsvPanel.on('mousedown', function (e) {
+            handler(e);
+            window.addEventListener('mousemove', handler);
+            window.addEventListener('mouseup', off);
+            window.addEventListener('mouseleave', off);
+        }, this);
+        return hsvPanel;
+    };
+    ColorPicker.prototype.createInputPanel = function () {
+        var wrap = $("<div class=\"ew-cip\"></div>");
+        var row1 = $("\n        <div class=\"ew-cip-row1 ew-cip-row\">\n            <div class=\"ew-cip-row-sub\">R:<input value=255 class=\"ew-cip-i-r ew-cip-i\"></div>\n            <div class=\"ew-cip-row-sub\">G:<input value=0 class=\"ew-cip-i-g ew-cip-i\"></div>\n            <div class=\"ew-cip-row-sub\">B:<input value=0 class=\"ew-cip-i-b ew-cip-i\"></div>\n            <div class=\"ew-cip-row-sub\">A:<input value=0 class=\"ew-cip-i-a ew-cip-i\"></div>\n        </div>");
+        row1.append(wrap);
+        this.$rInput = row1.find('.ew-cip-i-r');
+        this.$gInput = row1.find('.ew-cip-i-g');
+        this.$bInput = row1.find('.ew-cip-i-b');
+        this.$aInput = row1.find('.ew-cip-i-a');
+        var row2 = $("\n        <div class=\"ew-cip-row2 ew-cip-row\">\n            <div class=\"ew-cip-row-sub\">\n                HEX:#<input value=\"FF0000\" maxlength=6 class=\"ew-cip-hex-input\">\n            </div>\n            <div class=\"ew-cip-row-sub ew-cip-pre\">\n                <div class=\"ew-cip-pre-bg\"></div>\n            </div>\n            <button class=\"ew-cp-row-save\">\u786E\u5B9A</button>\n        </div>");
+        row2.append(wrap);
+        this.$hexInput = row2.find('.ew-cip-hex-input');
+        this.$preview = row2.find('.ew-cip-pre-bg');
+        return wrap;
+    };
+    return ColorPicker;
+}());
+//# sourceMappingURL=ColorPicker.js.map
+
 function select(option) {
     return new Select(option);
 }
@@ -406,5 +924,5 @@ var index = {
 //# sourceMappingURL=index.js.map
 
 export default index;
-export { select };
+export { ColorPicker, select };
 //# sourceMappingURL=bundle.js.map
