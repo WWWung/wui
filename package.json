@@ -1,14 +1,13 @@
 {
-  "name": "code",
-  "version": "1.0.0",
+  "name": "wwwui",
+  "version": "1.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/lib/bundle.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c config.js --environment TARGET:build",
     "dev": "rollup -w -c config.js --sourcemap --environment TARGET:dev"
   },
-  "author": "",
+  "author": "wang",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -26,5 +25,9 @@
     "rollup-plugin-tslint": "^0.2.2",
     "rollup-plugin-typescript": "^1.0.1",
     "rollup-plugin-uglify": "^6.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:WWWung/wui.git"
   }
 }

@@ -68,7 +68,6 @@ function getParents(target, cache) {
     }
     return parents;
 }
-//# sourceMappingURL=domUtils.js.map
 
 var Dom = /** @class */ (function () {
     function Dom(element) {
@@ -358,7 +357,6 @@ var Dom = /** @class */ (function () {
 function $(element) {
     return new Dom(element);
 }
-//# sourceMappingURL=dom.js.map
 
 function noop(data) {
     return data;
@@ -392,7 +390,6 @@ function toInt(value) {
     }
     return int;
 }
-//# sourceMappingURL=utils.js.map
 
 var Select = /** @class */ (function () {
     function Select(option) {
@@ -504,9 +501,8 @@ var Select = /** @class */ (function () {
     };
     return Select;
 }());
-//# sourceMappingURL=Select.js.map
 
-var css$2 = ".ew-cp-trigger {\r\n    box-sizing: border-box;\r\n    border: 1px solid #e6e6e6;\r\n    border-radius: 4px;\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    padding: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.ew-cp-alpha-bg, .ew-cp-color-bg {\r\n    width: 100%;\r\n    height: 100%;\r\n    border-radius: 2px;\r\n}\r\n\r\n.ew-cp-color-bg {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cp-color-icon {\r\n    width: 100%;\r\n    height: 100%;\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cp-panel {\r\n    width: 220px;\r\n    height: auto;\r\n    padding: 10px;\r\n    box-sizing: border-box;\r\n    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);\r\n    border-radius: 4px;\r\n    overflow: hidden;\r\n}\r\n\r\n.ew-hsvp {\r\n    position: relative;\r\n    cursor: crosshair;\r\n}\r\n\r\n.ew-hsvp-m1 {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    background: linear-gradient(180deg, transparent 0, #000);\r\n}\r\n\r\n.ew-hsvp-m2 {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    background: linear-gradient(90deg, #fff 0, transparent);\r\n}\r\n\r\n.ew-hsvc {\r\n    width: 8px;\r\n    height: 8px;\r\n    border-radius: 50%;\r\n    box-shadow: 0px 0px 2px rgb(0, 0, 0);\r\n    overflow: hidden;\r\n    border: 2px solid #fff;\r\n    position: absolute;\r\n    top: 0px;\r\n    left: 0px;\r\n}\r\n\r\n.ew-hp {\r\n    width: 100%;\r\n    height: 15px;\r\n    margin-top: 10px;\r\n    position: relative;\r\n    cursor: pointer;\r\n    background: linear-gradient(90deg, red 0, #f90 10%, #cdff00 20%, #35ff00 30%, #0f6 40%, #00fffd 50%, #06f 60%, #3200ff 70%, #cd00ff 80%, #f09 90%, red);\r\n}\r\n\r\n.ew-alpha {\r\n    width: 100%;\r\n    height: 15px;\r\n    margin-top: 10px;\r\n    position: relative;\r\n    cursor: pointer;\r\n    background: linear-gradient(to right, rgba(38, 18, 3, 0) 0%, rgb(38, 18, 3) 100%);\r\n    display: none;\r\n}\r\n\r\n.ew-cp-rgba .ew-alpha {\r\n    display: flex;\r\n}\r\n\r\n.ew-alpha-bg, .ew-cip-pre-bg {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.ew-cp-rgba .ew-alpha, .ew-cp-rgba .ew-cip-pre{\r\n    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==);\r\n    background-repeat: repeat;\r\n}\r\n\r\n.ew-hpc, .ew-alphac {\r\n    position: absolute;\r\n    height: 19px;\r\n    top: -2px;\r\n    left: -2px;\r\n    width: 4px;\r\n    border: 1px solid #000;\r\n    border-radius: 1px;\r\n    background-color: #fff;\r\n}\r\n\r\n.ew-cip-row {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n    font-size: 12px;\r\n    height: 18px;\r\n    line-height: 18px;\r\n    margin-top: 10px;\r\n}\r\n\r\n.ew-cip-i {\r\n    height: 18px;\r\n    width: 30px;\r\n    border: 1px solid #e0e1e5;\r\n    line-height: 18px;\r\n    font-size: 12px;\r\n}\r\n\r\n.ew-cip-row-sub {\r\n    height: 30px;\r\n    line-height: 30px;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cip-hex-input {\r\n    height: 18px;\r\n    width: 45px;\r\n    border: 1px solid #e0e1e5;\r\n    line-height: 18px;\r\n    font-size: 12px;\r\n}\r\n\r\n.ew-cip-pre {\r\n    display: inline-block;\r\n    width: 40px;\r\n    background: #f00;\r\n    height: 20px;\r\n    border-radius: 2px;\r\n    overflow: hidden;\r\n}\r\n\r\n.ew-cp-row-save {\r\n    height: 24px;\r\n    line-height: 24px;\r\n    width: auto;\r\n    padding: 0 10px;\r\n    border: 1px solid #dcdfe6;\r\n    cursor: pointer;\r\n    border-radius: 2px;\r\n    outline: none;\r\n}\r\n\r\n.ew-cp-row-save:hover {\r\n    border-color: #409eff;\r\n    color: #409eff;\r\n}";
+var css$2 = ".ew-cp-trigger {\r\n    box-sizing: border-box;\r\n    border: 1px solid #e6e6e6;\r\n    border-radius: 4px;\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    padding: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.ew-cp-alpha-bg, .ew-cp-color-bg {\r\n    width: 100%;\r\n    height: 100%;\r\n    border-radius: 2px;\r\n}\r\n\r\n.ew-cp-color-bg {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cp-color-icon {\r\n    width: 100%;\r\n    height: 100%;\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cp-panel {\r\n    width: 220px;\r\n    height: auto;\r\n    padding: 10px;\r\n    box-sizing: border-box;\r\n    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);\r\n    border-radius: 4px;\r\n    overflow: hidden;\r\n    position: absolute;\r\n}\r\n\r\n.ew-hsvp {\r\n    position: relative;\r\n    cursor: crosshair;\r\n}\r\n\r\n.ew-hsvp-m1 {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    background: linear-gradient(180deg, transparent 0, #000);\r\n}\r\n\r\n.ew-hsvp-m2 {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    background: linear-gradient(90deg, #fff 0, transparent);\r\n}\r\n\r\n.ew-hsvc {\r\n    width: 8px;\r\n    height: 8px;\r\n    border-radius: 50%;\r\n    box-shadow: 0px 0px 2px rgb(0, 0, 0);\r\n    overflow: hidden;\r\n    border: 2px solid #fff;\r\n    position: absolute;\r\n    top: 0px;\r\n    left: 0px;\r\n}\r\n\r\n.ew-hp {\r\n    width: 100%;\r\n    height: 15px;\r\n    margin-top: 10px;\r\n    position: relative;\r\n    cursor: pointer;\r\n    background: linear-gradient(90deg, red 0, #f90 10%, #cdff00 20%, #35ff00 30%, #0f6 40%, #00fffd 50%, #06f 60%, #3200ff 70%, #cd00ff 80%, #f09 90%, red);\r\n}\r\n\r\n.ew-alpha {\r\n    width: 100%;\r\n    height: 15px;\r\n    margin-top: 10px;\r\n    position: relative;\r\n    cursor: pointer;\r\n    background: linear-gradient(to right, rgba(38, 18, 3, 0) 0%, rgb(38, 18, 3) 100%);\r\n    display: none;\r\n}\r\n\r\n.ew-cp-rgba .ew-alpha {\r\n    display: flex;\r\n}\r\n\r\n.ew-alpha-bg, .ew-cip-pre-bg {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.ew-cp-rgba .ew-alpha, .ew-cp-rgba .ew-cip-pre{\r\n    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==);\r\n    background-repeat: repeat;\r\n}\r\n\r\n.ew-hpc, .ew-alphac {\r\n    position: absolute;\r\n    height: 19px;\r\n    top: -2px;\r\n    left: -2px;\r\n    width: 4px;\r\n    border: 1px solid #000;\r\n    border-radius: 1px;\r\n    background-color: #fff;\r\n}\r\n\r\n.ew-cip-row {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n    font-size: 12px;\r\n    height: 18px;\r\n    line-height: 18px;\r\n    margin-top: 10px;\r\n}\r\n\r\n.ew-cip-i {\r\n    height: 18px;\r\n    width: 30px;\r\n    border: 1px solid #e0e1e5;\r\n    line-height: 18px;\r\n    font-size: 12px;\r\n}\r\n\r\n.ew-cip-row-sub {\r\n    height: 30px;\r\n    line-height: 30px;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.ew-cip-hex-input {\r\n    height: 18px;\r\n    width: 45px;\r\n    border: 1px solid #e0e1e5;\r\n    line-height: 18px;\r\n    font-size: 12px;\r\n}\r\n\r\n.ew-cip-pre {\r\n    display: inline-block;\r\n    width: 40px;\r\n    background: #f00;\r\n    height: 20px;\r\n    border-radius: 2px;\r\n    overflow: hidden;\r\n}\r\n\r\n.ew-cp-row-save {\r\n    height: 24px;\r\n    line-height: 24px;\r\n    width: auto;\r\n    padding: 0 10px;\r\n    border: 1px solid #dcdfe6;\r\n    cursor: pointer;\r\n    border-radius: 2px;\r\n    outline: none;\r\n}\r\n\r\n.ew-cp-row-save:hover {\r\n    border-color: #409eff;\r\n    color: #409eff;\r\n}";
 styleInject(css$2);
 
 //  颜色之间的相互转换
@@ -717,8 +713,10 @@ var ColorPicker = /** @class */ (function () {
         if (!this.$panel) {
             this.createPanel();
         }
-        this.adjustPotion();
+        this.$panel.css('opacity', '0');
         this.$panel.append($(document.body));
+        this.adjustPotion();
+        this.$panel.css('opacity', '');
         var handler = function (e) {
             var path = eventPath(e);
             for (var i = 0; i < path.length; i++) {
@@ -913,7 +911,6 @@ var ColorPicker = /** @class */ (function () {
     };
     return ColorPicker;
 }());
-//# sourceMappingURL=ColorPicker.js.map
 
 function select(option) {
     return new Select(option);
@@ -921,7 +918,6 @@ function select(option) {
 var index = {
     select: select
 };
-//# sourceMappingURL=index.js.map
 
 export default index;
 export { ColorPicker, select };

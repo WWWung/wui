@@ -195,8 +195,10 @@ export class ColorPicker {
         if (!this.$panel) {
             this.createPanel()
         }
-        this.adjustPotion()
+        this.$panel.css('opacity', '0')
         this.$panel.append($(document.body))
+        this.adjustPotion()
+        this.$panel.css('opacity', '')
 
         const handler = (e: MouseEvent) => {
             const path = eventPath(e)

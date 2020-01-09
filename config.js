@@ -41,10 +41,7 @@ const getConfig = mode => {
         },
         plugins: (opts.plugins || []).concat([
             commonjs(),
-            resolve(),
-            // babel({
-            //     exclude: 'node_modules/**'
-            // })
+            resolve()
         ]),
         watch: opts.watch || null,
         sourceMap: !!opts.sourceMap
